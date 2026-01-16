@@ -1,0 +1,13 @@
+{
+  "itemGroup.pixelmonmorpher": "Example Mod Tab",
+  "block.pixelmonmorpher.example_block": "Example Block",
+  "item.pixelmonmorpher.example_item": "Example Item",
+
+  "pixelmonmorpher.configuration.title": "Pixelmon Morpher Configs",
+  "pixelmonmorpher.configuration.section.pixelmonmorpher.common.toml": "Pixelmon Morpher Configs",
+  "pixelmonmorpher.configuration.section.pixelmonmorpher.common.toml.title": "Pixelmon Morpher Configs",
+  "pixelmonmorpher.configuration.items": "Item List",
+  "pixelmonmorpher.configuration.logDirtBlock": "Log Dirt Block",
+  "pixelmonmorpher.configuration.magicNumberIntroduction": "Magic Number Text",
+  "pixelmonmorpher.configuration.magicNumber": "Magic Number"
+}
