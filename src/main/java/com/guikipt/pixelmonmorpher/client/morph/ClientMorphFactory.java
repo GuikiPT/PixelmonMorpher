@@ -44,6 +44,27 @@ public class ClientMorphFactory {
             Pokemon pokemon = PokemonFactory.create(species);
             pokemon.setShiny(morphData.isShiny());
 
+            // Debug: Log the form name we're trying to apply
+            String formName = morphData.getFormName();
+            com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.info("Client creating entity: species={}, formName='{}', isShiny={}",
+                morphData.getSpeciesName(), formName, morphData.isShiny());
+
+            // Apply the form if specified
+            if (formName != null && !formName.isEmpty() && !formName.equalsIgnoreCase("base")) {
+                try {
+                    var form = species.getForm(formName);
+                    if (form != null) {
+                        pokemon.setForm(form);
+                        com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.info("Client applied form: {}", formName);
+                    } else {
+                        com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.warn("Client failed to find form: {}", formName);
+                    }
+                } catch (Exception e) {
+                    com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.error("Client error applying form: {}", formName, e);
+                    // Form not found, use base form
+                }
+            }
+
             // Create entity directly without spawning into world
             PixelmonEntity entity = pokemon.getOrCreatePixelmon(player);
             if (entity != null) {

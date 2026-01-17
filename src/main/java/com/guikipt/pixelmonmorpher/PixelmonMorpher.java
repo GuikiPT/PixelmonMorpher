@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 
 import com.guikipt.pixelmonmorpher.command.PokeMorphCommand;
 import com.guikipt.pixelmonmorpher.command.PokeUnmorphCommand;
+import com.guikipt.pixelmonmorpher.item.SynchroMachineItem;
 import com.guikipt.pixelmonmorpher.morph.PlayerMorphAttachment;
 import com.guikipt.pixelmonmorpher.network.NetworkHandler;
 import com.mojang.logging.LogUtils;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -57,13 +59,19 @@ public class PixelmonMorpher {
     public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
 
-    // Creates a creative tab with the id "pixelmonmorpher:example_tab" for the example item, that is placed after the combat tab
+    // Synchro Machine - The main item for morphing into Pokémon
+    public static final DeferredItem<Item> SYNCHRO_MACHINE = ITEMS.register("synchro_machine",
+            () -> new SynchroMachineItem(new Item.Properties()
+                    .stacksTo(1)
+                    .rarity(Rarity.UNCOMMON)));
+
+    // Creates a creative tab with the id "pixelmonmorpher:example_tab" for the Synchro Machine and other items
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.pixelmonmorpher")) //The language key for the title of your CreativeModeTab
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
+            .icon(() -> SYNCHRO_MACHINE.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(SYNCHRO_MACHINE.get()); // Add the Synchro Machine to the tab
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.

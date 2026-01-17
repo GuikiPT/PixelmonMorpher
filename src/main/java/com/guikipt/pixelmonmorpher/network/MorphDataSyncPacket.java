@@ -27,13 +27,13 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
         MorphData data = new MorphData();
         if (isMorphed) {
             String species = buf.readUtf();
-            int form = buf.readVarInt();
+            String formName = buf.readUtf();
             boolean shiny = buf.readBoolean();
             String palette = buf.readUtf();
             float size = buf.readFloat();
             float width = buf.readFloat();
             float height = buf.readFloat();
-            data = new MorphData(species, form, shiny, palette, size, width, height);
+            data = new MorphData(species, formName, shiny, palette, size, width, height);
         } else {
             data.setMorphed(false);
         }
@@ -41,7 +41,20 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
     }
 
     public static void handle(MorphDataSyncPacket msg, IPayloadContext ctx) {
-        ctx.enqueueWork(() -> ClientMorphCache.setMorph(msg.playerId, msg.morphData));
+        ctx.enqueueWork(() -> {
+            // Update the cache first
+            ClientMorphCache.setMorph(msg.playerId, msg.morphData);
+
+            // Force an additional dimension refresh to ensure it takes effect
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc.level != null) {
+                net.minecraft.world.entity.player.Player player = mc.level.getPlayerByUUID(msg.playerId);
+                if (player != null) {
+                    // Refresh dimensions on the next tick to ensure cache is fully updated
+                    mc.execute(() -> player.refreshDimensions());
+                }
+            }
+        });
     }
 
     public static void encode(MorphDataSyncPacket msg, FriendlyByteBuf buf) {
@@ -49,7 +62,7 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
         buf.writeBoolean(msg.morphData != null && msg.morphData.isMorphed());
         if (msg.morphData != null && msg.morphData.isMorphed()) {
             buf.writeUtf(msg.morphData.getSpeciesName());
-            buf.writeVarInt(msg.morphData.getForm());
+            buf.writeUtf(msg.morphData.getFormName() != null ? msg.morphData.getFormName() : "");
             buf.writeBoolean(msg.morphData.isShiny());
             buf.writeUtf(msg.morphData.getPalette());
             buf.writeFloat(msg.morphData.getSize());

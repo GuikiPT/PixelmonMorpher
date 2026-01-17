@@ -1,7 +1,8 @@
 {
-  "itemGroup.pixelmonmorpher": "Example Mod Tab",
+  "itemGroup.pixelmonmorpher": "Pixelmon Morpher",
   "block.pixelmonmorpher.example_block": "Example Block",
   "item.pixelmonmorpher.example_item": "Example Item",
+  "item.pixelmonmorpher.synchro_machine": "Synchro Machine",
 
   "pixelmonmorpher.configuration.title": "Pixelmon Morpher Configs",
   "pixelmonmorpher.configuration.section.pixelmonmorpher.common.toml": "Pixelmon Morpher Configs",

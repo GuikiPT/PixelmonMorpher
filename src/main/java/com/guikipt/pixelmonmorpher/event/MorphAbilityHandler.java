@@ -60,27 +60,27 @@ public class MorphAbilityHandler {
         // Check if Pokémon can fly
         boolean canFly = canPokemonFly(pokemon);
 
-        // Always log when ability state changes
-        boolean currentCanFly = serverPlayer.getAbilities().mayfly;
-        if (canFly != currentCanFly && !serverPlayer.isCreative() && !serverPlayer.isSpectator()) {
-            PixelmonMorpher.LOGGER.info("Flight state changing for {}: canFly={}, currentMayfly={}, species={}",
-                serverPlayer.getName().getString(), canFly, currentCanFly, morphData.getSpeciesName());
-        }
+        // Flight logging disabled
+        // boolean currentCanFly = serverPlayer.getAbilities().mayfly;
+        // if (canFly != currentCanFly && !serverPlayer.isCreative() && !serverPlayer.isSpectator()) {
+        //     PixelmonMorpher.LOGGER.info("Flight state changing for {}: canFly={}, currentMayfly={}, species={}",
+        //         serverPlayer.getName().getString(), canFly, currentCanFly, morphData.getSpeciesName());
+        // }
 
-        // Debug logging
-        if (serverPlayer.tickCount % 100 == 0) { // Log every 5 seconds
-            PixelmonMorpher.LOGGER.debug("Morph check for {}: species={}, canFly={}, isCreative={}, mayfly={}",
-                serverPlayer.getName().getString(), morphData.getSpeciesName(), canFly,
-                serverPlayer.isCreative(), serverPlayer.getAbilities().mayfly);
-        }
+        // Debug logging disabled
+        // if (serverPlayer.tickCount % 100 == 0) { // Log every 5 seconds
+        //     PixelmonMorpher.LOGGER.debug("Morph check for {}: species={}, canFly={}, isCreative={}, mayfly={}",
+        //         serverPlayer.getName().getString(), morphData.getSpeciesName(), canFly,
+        //         serverPlayer.isCreative(), serverPlayer.getAbilities().mayfly);
+        // }
 
         // Grant flight ability in survival if Pokémon can fly
         if (canFly && !serverPlayer.isCreative() && !serverPlayer.isSpectator()) {
             if (!serverPlayer.getAbilities().mayfly) {
                 serverPlayer.getAbilities().mayfly = true;
                 serverPlayer.onUpdateAbilities();
-                PixelmonMorpher.LOGGER.info("Granted flight ability to {} (morphed as {})",
-                    serverPlayer.getName().getString(), morphData.getSpeciesName());
+                // PixelmonMorpher.LOGGER.info("Granted flight ability to {} (morphed as {})",
+                //     serverPlayer.getName().getString(), morphData.getSpeciesName());
             }
         } else if (!canFly && !serverPlayer.isCreative() && !serverPlayer.isSpectator()) {
             // Remove flight if Pokémon can't fly and player isn't in creative
@@ -88,8 +88,8 @@ public class MorphAbilityHandler {
                 serverPlayer.getAbilities().mayfly = false;
                 serverPlayer.getAbilities().flying = false;
                 serverPlayer.onUpdateAbilities();
-                PixelmonMorpher.LOGGER.info("Removed flight ability from {} (morphed as non-flying Pokémon)",
-                    serverPlayer.getName().getString());
+                // PixelmonMorpher.LOGGER.info("Removed flight ability from {} (morphed as non-flying Pokémon)",
+                //     serverPlayer.getName().getString());
             }
         }
 

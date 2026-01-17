@@ -1,5 +1,6 @@
 package com.guikipt.pixelmonmorpher.client.screen;
 
+import com.guikipt.pixelmonmorpher.PixelmonMorpher;
 import com.guikipt.pixelmonmorpher.client.morph.ClientMorphCache;
 import com.guikipt.pixelmonmorpher.morph.MorphData;
 import com.guikipt.pixelmonmorpher.network.MorphRequestPacket;
@@ -315,16 +316,19 @@ public class MorphMenuScreen extends Screen {
                 var form = currentPokemon.getSpecies().getForm(formName);
                 if (form != null) {
                     currentPokemon.setForm(form);
-                    // Recreate to apply form visually
-                    updateSelectedPokemon();
+                    // Clear cached entity so it updates with the new form
+                    cachedPreviewEntity = null;
+                    com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.info("Form changed to: {}", formName);
                 }
             } catch (Exception e) {
+                com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.error("Error applying form: {}", formName, e);
                 // Keep current form
             }
         } else if (formName.equals("base") && currentPokemon != null) {
             // Reset to base form
             currentPokemon.setForm(currentPokemon.getSpecies().getDefaultForm());
-            updateSelectedPokemon();
+            cachedPreviewEntity = null;
+            com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.info("Form changed to: base");
         }
     }
 

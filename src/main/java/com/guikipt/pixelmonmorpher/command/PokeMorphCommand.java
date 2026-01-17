@@ -1,5 +1,6 @@
 package com.guikipt.pixelmonmorpher.command;
 
+import com.guikipt.pixelmonmorpher.PixelmonMorpher;
 import com.guikipt.pixelmonmorpher.morph.MorphData;
 import com.guikipt.pixelmonmorpher.morph.PlayerMorphAttachment;
 import com.guikipt.pixelmonmorpher.network.MorphDataSyncPacket;
@@ -112,18 +113,30 @@ public class PokeMorphCommand {
                 width = entity.getBbWidth();
                 height = entity.getBbHeight();
 
+                PixelmonMorpher.LOGGER.info("Command morph - Entity dimensions for {}: width={}, height={}",
+                    pokemon.getSpecies().getName(), width, height);
+
                 // Clamp dimensions to reasonable values
                 width = Math.max(0.3f, Math.min(3.0f, width));
                 height = Math.max(0.5f, Math.min(3.0f, height));
+
+                PixelmonMorpher.LOGGER.info("Command morph - Clamped dimensions: width={}, height={}", width, height);
+            } else {
+                PixelmonMorpher.LOGGER.warn("Command morph - Failed to create entity for {}", pokemon.getSpecies().getName());
             }
         } catch (Exception e) {
+            PixelmonMorpher.LOGGER.error("Command morph - Error getting dimensions", e);
             // Use defaults if entity creation fails
         }
 
-        // Create morph data
+        // Get the actual form name
+        String actualFormName = pokemon.getForm().getName();
+        PixelmonMorpher.LOGGER.info("Command morph - Form name: '{}' (requested: '{}')", actualFormName, formName);
+
+        // Create morph data with the actual form name
         MorphData morphData = new MorphData(
             pokemon.getSpecies().getName(),
-            0, // Form index (handled by form system)
+            actualFormName, // Use the actual form name from the pokemon
             pokemon.isShiny(),
             pokemon.getPalette().getName(),
             1.0f,
@@ -139,6 +152,13 @@ public class PokeMorphCommand {
 
         // Sync to all clients
         NetworkHandler.sendToAll(new MorphDataSyncPacket(targetPlayer.getUUID(), morphData));
+
+        // Force another dimension refresh after a small delay to ensure it takes effect
+        // This is needed because sometimes the first refresh happens before the data is fully synced
+        var server = targetPlayer.getServer();
+        if (server != null) {
+            server.execute(targetPlayer::refreshDimensions);
+        }
 
         // Build display name
         String displayName = pokemon.getSpecies().getName();

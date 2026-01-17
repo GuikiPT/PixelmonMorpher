@@ -93,11 +93,20 @@ public record MorphRequestPacket(
                         var form = species.getForm(msg.formName);
                         if (form != null) {
                             pokemon.setForm(form);
+                            com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.info("MorphRequest: Applied form '{}' to {}", msg.formName, species.getName());
+                        } else {
+                            com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.warn("MorphRequest: Form '{}' not found for {}", msg.formName, species.getName());
                         }
                     } catch (Exception e) {
+                        com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.error("MorphRequest: Error applying form '{}' to {}", msg.formName, species.getName(), e);
                         // Keep base form
                     }
                 }
+
+                // Get the ACTUAL form name from the pokemon (important!)
+                String actualFormName = pokemon.getForm().getName();
+                com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.info("MorphRequest: Requested form='{}', Actual form='{}' for {}",
+                    msg.formName, actualFormName, pokemon.getSpecies().getName());
 
                 // Get dimensions from the Pokémon entity
                 float width = 0.6f;  // Default player width
@@ -121,10 +130,10 @@ public record MorphRequestPacket(
                 width *= msg.size;
                 height *= msg.size;
 
-                // Create morph data
+                // Create morph data with the actual form name from the pokemon
                 MorphData morphData = new MorphData(
                     pokemon.getSpecies().getName(),
-                    0, // Form index (handled by form system)
+                    actualFormName, // Use the actual form name from the pokemon, not msg.formName
                     pokemon.isShiny(),
                     msg.palette != null && !msg.palette.equals("none") ? msg.palette : pokemon.getPalette().getName(),
                     msg.size,
@@ -146,8 +155,8 @@ public record MorphRequestPacket(
                 if (msg.isShiny) {
                     displayName = "Shiny " + displayName;
                 }
-                if (msg.formName != null && !msg.formName.isEmpty() && !msg.formName.equalsIgnoreCase("base")) {
-                    displayName += " (" + msg.formName + ")";
+                if (actualFormName != null && !actualFormName.isEmpty() && !actualFormName.equalsIgnoreCase("base")) {
+                    displayName += " (" + actualFormName + ")";
                 }
 
                 // Send success message

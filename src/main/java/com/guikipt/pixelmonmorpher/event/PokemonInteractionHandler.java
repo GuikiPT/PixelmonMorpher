@@ -13,7 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -33,9 +33,9 @@ public class PokemonInteractionHandler {
             return;
         }
 
-        // Check if player is using a stick in main hand
+        // Check if player is using the Synchro Machine in main hand
         if (event.getHand() != InteractionHand.MAIN_HAND ||
-            !event.getItemStack().is(Items.STICK)) {
+            !event.getItemStack().is((Item) PixelmonMorpher.SYNCHRO_MACHINE.get())) {
             return;
         }
 
@@ -94,8 +94,8 @@ public class PokemonInteractionHandler {
             return;
         }
 
-        // Check if player is using a stick and sneaking (shift+right-click)
-        if (!event.getItemStack().is(Items.STICK) || !player.isShiftKeyDown()) {
+        // Check if player is using the Synchro Machine and sneaking (shift+right-click)
+        if (!event.getItemStack().is(PixelmonMorpher.SYNCHRO_MACHINE.get()) || !player.isShiftKeyDown()) {
             return;
         }
 
@@ -131,10 +131,14 @@ public class PokemonInteractionHandler {
      */
     private static MorphData createMorphDataFromPokemon(Pokemon pokemon) {
         String speciesName = pokemon.getSpecies().getName();
-        int form = 0; // TODO: Find correct form API in Pixelmon 9.3.13
+        String formName = pokemon.getForm().getName(); // Get the actual form name (e.g., "hisui", "mega", etc.)
         boolean isShiny = pokemon.isShiny();
         String palette = pokemon.getPalette().getName();
         float size = 1.0f; // Default size for now
+
+        // Debug logging
+        PixelmonMorpher.LOGGER.info("Creating morph data from Pokemon: species={}, form={}, isShiny={}",
+            speciesName, formName, isShiny);
 
         // Get dimensions from the Pokémon entity
         PixelmonEntity entity = pokemon.getOrSpawnPixelmon(null);
@@ -146,13 +150,19 @@ public class PokemonInteractionHandler {
             width = entity.getBbWidth();
             height = entity.getBbHeight();
 
+            PixelmonMorpher.LOGGER.info("Entity dimensions: width={}, height={}", width, height);
+
             // Clamp dimensions to reasonable values for player gameplay
             // Min: 0.3 (very small Pokémon like Joltik)
             // Max: 3.0 (very large Pokémon, scaled down for gameplay)
             width = Math.max(0.3f, Math.min(3.0f, width));
             height = Math.max(0.5f, Math.min(3.0f, height));
+
+            PixelmonMorpher.LOGGER.info("Clamped dimensions: width={}, height={}", width, height);
+        } else {
+            PixelmonMorpher.LOGGER.warn("Failed to create entity for {}", speciesName);
         }
 
-        return new MorphData(speciesName, form, isShiny, palette, size, width, height);
+        return new MorphData(speciesName, formName, isShiny, palette, size, width, height);
     }
 }

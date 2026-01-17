@@ -9,7 +9,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
  */
 public class MorphData implements INBTSerializable<CompoundTag> {
     private String speciesName;
-    private int form;
+    private String formName; // Changed from int to String to support all form types
     private boolean isShiny;
     private String palette; // For Pixelmon's palette system
     private float size;
@@ -21,9 +21,9 @@ public class MorphData implements INBTSerializable<CompoundTag> {
         this.isMorphed = false;
     }
 
-    public MorphData(String speciesName, int form, boolean isShiny, String palette, float size, float width, float height) {
+    public MorphData(String speciesName, String formName, boolean isShiny, String palette, float size, float width, float height) {
         this.speciesName = speciesName;
-        this.form = form;
+        this.formName = formName;
         this.isShiny = isShiny;
         this.palette = palette;
         this.size = size;
@@ -36,8 +36,14 @@ public class MorphData implements INBTSerializable<CompoundTag> {
         return speciesName;
     }
 
+    public String getFormName() {
+        return formName;
+    }
+
+    // Deprecated: kept for backwards compatibility
+    @Deprecated
     public int getForm() {
-        return form;
+        return 0; // Return 0 for base form for backwards compat
     }
 
     public boolean isShiny() {
@@ -77,7 +83,7 @@ public class MorphData implements INBTSerializable<CompoundTag> {
         tag.putBoolean("isMorphed", isMorphed);
         if (isMorphed) {
             tag.putString("speciesName", speciesName);
-            tag.putInt("form", form);
+            tag.putString("formName", formName != null ? formName : "");
             tag.putBoolean("isShiny", isShiny);
             tag.putString("palette", palette);
             tag.putFloat("size", size);
@@ -95,7 +101,7 @@ public class MorphData implements INBTSerializable<CompoundTag> {
         this.isMorphed = tag.getBoolean("isMorphed");
         if (this.isMorphed) {
             this.speciesName = tag.getString("speciesName");
-            this.form = tag.getInt("form");
+            this.formName = tag.getString("formName");
             this.isShiny = tag.getBoolean("isShiny");
             this.palette = tag.getString("palette");
             this.size = tag.getFloat("size");
@@ -107,7 +113,7 @@ public class MorphData implements INBTSerializable<CompoundTag> {
     public void clear() {
         this.isMorphed = false;
         this.speciesName = null;
-        this.form = 0;
+        this.formName = null;
         this.isShiny = false;
         this.palette = null;
         this.size = 1.0f;
