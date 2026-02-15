@@ -13,6 +13,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 
+import java.util.Objects;
+
 /**
  * Handles client tick updates for morphed player entities.
  * This runs once per tick (not per frame) to properly update animations.
@@ -29,16 +31,20 @@ public class ClientMorphTickHandler {
             return;
         }
 
+        // Store non-null references for null safety
+        var level = Objects.requireNonNull(mc.level);
+        var player = Objects.requireNonNull(mc.player);
+
         // Only update once per game tick (not per render frame)
-        int currentTickCount = mc.player.tickCount;
+        int currentTickCount = player.tickCount;
         if (currentTickCount == lastTickCount) {
             return;
         }
         lastTickCount = currentTickCount;
 
         // Update all morphed players once per tick
-        for (var player : mc.level.players()) {
-            if (!(player instanceof AbstractClientPlayer clientPlayer)) {
+        for (var otherPlayer : level.players()) {
+            if (!(otherPlayer instanceof AbstractClientPlayer clientPlayer)) {
                 continue;
             }
 

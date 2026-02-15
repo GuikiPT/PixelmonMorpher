@@ -4,6 +4,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
+import java.util.Objects;
+
 /**
  * Stores data about a player's current morph
  */
@@ -82,10 +84,10 @@ public class MorphData implements INBTSerializable<CompoundTag> {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("isMorphed", isMorphed);
         if (isMorphed) {
-            tag.putString("speciesName", speciesName);
+            tag.putString("speciesName", Objects.requireNonNull(speciesName));
             tag.putString("formName", formName != null ? formName : "");
             tag.putBoolean("isShiny", isShiny);
-            tag.putString("palette", palette);
+            tag.putString("palette", Objects.requireNonNull(palette));
             tag.putFloat("size", size);
             tag.putFloat("width", width);
             tag.putFloat("height", height);
@@ -100,10 +102,10 @@ public class MorphData implements INBTSerializable<CompoundTag> {
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         this.isMorphed = tag.getBoolean("isMorphed");
         if (this.isMorphed) {
-            this.speciesName = tag.getString("speciesName");
-            this.formName = tag.getString("formName");
+            this.speciesName = Objects.requireNonNull(tag.getString("speciesName"));
+            this.formName = Objects.requireNonNull(tag.getString("formName"));
             this.isShiny = tag.getBoolean("isShiny");
-            this.palette = tag.getString("palette");
+            this.palette = Objects.requireNonNull(tag.getString("palette"));
             this.size = tag.getFloat("size");
             this.width = tag.getFloat("width");
             this.height = tag.getFloat("height");

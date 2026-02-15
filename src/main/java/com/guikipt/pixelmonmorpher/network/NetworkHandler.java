@@ -12,6 +12,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
+import java.util.Objects;
+
 /**
  * Registers payloads and helper senders for morph sync.
  */
@@ -28,19 +30,27 @@ public class NetworkHandler {
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
         var registrar = event.registrar(PixelmonMorpher.MODID);
-        registrar.playToClient(MorphDataSyncPacket.TYPE, STREAM_CODEC, MorphDataSyncPacket::handle);
-        registrar.playToServer(MorphRequestPacket.TYPE, MorphRequestPacket.CODEC, MorphRequestPacket::handle);
+        registrar.playToClient(
+            Objects.requireNonNull(MorphDataSyncPacket.TYPE),
+            Objects.requireNonNull(STREAM_CODEC),
+            MorphDataSyncPacket::handle
+        );
+        registrar.playToServer(
+            Objects.requireNonNull(MorphRequestPacket.TYPE),
+            Objects.requireNonNull(MorphRequestPacket.CODEC),
+            MorphRequestPacket::handle
+        );
     }
 
     public static void sendToServer(CustomPacketPayload message) {
-        PacketDistributor.sendToServer(message);
+        PacketDistributor.sendToServer(Objects.requireNonNull(message));
     }
 
     public static void sendToAll(MorphDataSyncPacket message) {
-        PacketDistributor.sendToAllPlayers(message);
+        PacketDistributor.sendToAllPlayers(Objects.requireNonNull(message));
     }
 
     public static void sendToPlayer(MorphDataSyncPacket message, ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, message);
+        PacketDistributor.sendToPlayer(Objects.requireNonNull(player), Objects.requireNonNull(message));
     }
 }

@@ -5,6 +5,7 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.guikipt.pixelmonmorpher.PixelmonMorpher;
@@ -15,25 +16,25 @@ import com.guikipt.pixelmonmorpher.PixelmonMorpher;
 public class PlayerMorphAttachment {
 
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
-        DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, PixelmonMorpher.MODID);
+        DeferredRegister.create(Objects.requireNonNull(NeoForgeRegistries.ATTACHMENT_TYPES), PixelmonMorpher.MODID);
 
-    public static final Supplier<AttachmentType<MorphData>> MORPH_DATA = ATTACHMENT_TYPES.register(
+    public static final Supplier<AttachmentType<MorphData>> MORPH_DATA = Objects.requireNonNull(ATTACHMENT_TYPES.register(
         "morph_data",
         () -> AttachmentType.serializable(MorphData::new).build()
-    );
+    ));
 
     /**
      * Get the morph data for a player
      */
     public static MorphData getMorphData(ServerPlayer player) {
-        return player.getData(MORPH_DATA);
+        return Objects.requireNonNull(player.getData(Objects.requireNonNull(MORPH_DATA)));
     }
 
     /**
      * Set morph data for a player
      */
     public static void setMorphData(ServerPlayer player, MorphData data) {
-        player.setData(MORPH_DATA, data);
+        player.setData(Objects.requireNonNull(MORPH_DATA), Objects.requireNonNull(data));
     }
 
     /**

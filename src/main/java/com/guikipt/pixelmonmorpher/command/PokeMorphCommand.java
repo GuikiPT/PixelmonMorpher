@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Command to morph a player into a Pokémon.
@@ -51,19 +52,19 @@ public class PokeMorphCommand {
         dispatcher.register(
             Commands.literal("pokemorph")
                 // Admin commands require OP level 2
-                .then(Commands.argument("player", EntityArgument.player())
+                .then(Commands.argument("player", Objects.requireNonNull(EntityArgument.player()))
                     .requires(source -> source.hasPermission(2))
-                    .then(Commands.argument("pokemon", StringArgumentType.string())
+                    .then(Commands.argument("pokemon", Objects.requireNonNull(StringArgumentType.string()))
                         .suggests(POKEMON_SUGGESTIONS)
-                        .executes(context -> executeMorph(context, false, null))
+                        .executes(context -> executeMorph(Objects.requireNonNull(context), false, null))
                         .then(Commands.literal("shiny")
-                            .executes(context -> executeMorph(context, true, null))
-                            .then(Commands.argument("form", StringArgumentType.string())
-                                .executes(context -> executeMorph(context, true, StringArgumentType.getString(context, "form")))
+                            .executes(context -> executeMorph(Objects.requireNonNull(context), true, null))
+                            .then(Commands.argument("form", Objects.requireNonNull(StringArgumentType.string()))
+                                .executes(context -> executeMorph(Objects.requireNonNull(context), true, StringArgumentType.getString(context, "form")))
                             )
                         )
-                        .then(Commands.argument("form", StringArgumentType.string())
-                            .executes(context -> executeMorph(context, false, StringArgumentType.getString(context, "form")))
+                        .then(Commands.argument("form", Objects.requireNonNull(StringArgumentType.string()))
+                            .executes(context -> executeMorph(Objects.requireNonNull(context), false, StringArgumentType.getString(context, "form")))
                         )
                     )
                 )
@@ -77,7 +78,7 @@ public class PokeMorphCommand {
         // Get species from registry
         Species species = PixelmonSpecies.fromNameOrDex(pokemonName).orElse(null);
         if (species == null) {
-            context.getSource().sendFailure(Component.literal("§cUnknown Pokémon: " + pokemonName));
+            context.getSource().sendFailure(Objects.requireNonNull(Component.literal("§cUnknown Pokémon: " + pokemonName)));
             return 0;
         }
 
@@ -94,7 +95,7 @@ public class PokeMorphCommand {
                 if (form != null) {
                     pokemon.setForm(form);
                 } else {
-                    context.getSource().sendFailure(Component.literal("§cUnknown form '" + formName + "' for " + species.getName()));
+                    context.getSource().sendFailure(Objects.requireNonNull(Component.literal("§cUnknown form '" + formName + "' for " + species.getName())));
                     return 0;
                 }
             } catch (Exception e) {
@@ -175,11 +176,11 @@ public class PokeMorphCommand {
 
         // Send success messages
         context.getSource().sendSuccess(
-            () -> Component.literal("§aMorphed " + playerName + " into " + finalDisplayName + "!"),
+            () -> Objects.requireNonNull(Component.literal("§aMorphed " + playerName + " into " + finalDisplayName + "!")),
             true
         );
 
-        targetPlayer.sendSystemMessage(Component.literal("§aYou have been morphed into " + finalDisplayName + "!"));
+        targetPlayer.sendSystemMessage(Objects.requireNonNull(Component.literal("§aYou have been morphed into " + finalDisplayName + "!")));
 
         return 1;
     }

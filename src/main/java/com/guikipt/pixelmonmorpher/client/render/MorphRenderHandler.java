@@ -17,6 +17,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 
+import java.util.Objects;
+
 /**
  * Renders Pokémon models for morphed players.
  */
@@ -46,7 +48,7 @@ public class MorphRenderHandler {
 
             // Render the Pixelmon entity in place of the player
             PoseStack poseStack = event.getPoseStack();
-            MultiBufferSource bufferSource = event.getMultiBufferSource();
+            MultiBufferSource bufferSource = Objects.requireNonNull(event.getMultiBufferSource());
             int packedLight = event.getPackedLight();
             float partialTick = event.getPartialTick();
 

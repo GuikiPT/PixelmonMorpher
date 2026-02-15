@@ -36,6 +36,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.Objects;
+
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(PixelmonMorpher.MODID)
 public class PixelmonMorpher {
@@ -48,16 +50,16 @@ public class PixelmonMorpher {
     // Create a Deferred Register to hold Items which will all be registered under the "pixelmonmorpher" namespace
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "pixelmonmorpher" namespace
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Objects.requireNonNull(Registries.CREATIVE_MODE_TAB), MODID);
 
     // Creates a new Block with the id "pixelmonmorpher:example_block", combining the namespace and path
-    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE));
+    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", Objects.requireNonNull(BlockBehaviour.Properties.of().mapColor(Objects.requireNonNull(MapColor.STONE))));
     // Creates a new BlockItem with the id "pixelmonmorpher:example_block", combining the namespace and path
-    public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
+    public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", Objects.requireNonNull(EXAMPLE_BLOCK));
 
     // Creates a new food item with the id "pixelmonmorpher:example_id", nutrition 1 and saturation 2
-    public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
-            .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
+    public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", new Item.Properties().food(Objects.requireNonNull(new FoodProperties.Builder()
+            .alwaysEdible().nutrition(1).saturationModifier(2f).build())));
 
     // Synchro Machine - The main item for morphing into Pokémon
     public static final DeferredItem<Item> SYNCHRO_MACHINE = ITEMS.register("synchro_machine",
@@ -67,11 +69,11 @@ public class PixelmonMorpher {
 
     // Creates a creative tab with the id "pixelmonmorpher:example_tab" for the Synchro Machine and other items
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.pixelmonmorpher")) //The language key for the title of your CreativeModeTab
+            .title(Objects.requireNonNull(Component.translatable("itemGroup.pixelmonmorpher"))) //The language key for the title of your CreativeModeTab
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> SYNCHRO_MACHINE.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(SYNCHRO_MACHINE.get()); // Add the Synchro Machine to the tab
+                output.accept(Objects.requireNonNull(SYNCHRO_MACHINE.get())); // Add the Synchro Machine to the tab
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.

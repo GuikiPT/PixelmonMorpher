@@ -52,6 +52,8 @@ public class ClientPlayerSizeHandler {
         };
 
         // Set the new dimensions (this affects camera height)
-        event.setNewSize(newDimensions);
+        if (newDimensions != null) {
+            event.setNewSize(newDimensions);
+        }
     }
 }

@@ -18,6 +18,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
+import java.util.Objects;
+
 /**
  * Handles player interactions with Pixelmon entities
  */
@@ -35,7 +37,7 @@ public class PokemonInteractionHandler {
 
         // Check if player is using the Synchro Machine in main hand
         if (event.getHand() != InteractionHand.MAIN_HAND ||
-            !event.getItemStack().is((Item) PixelmonMorpher.SYNCHRO_MACHINE.get())) {
+            !event.getItemStack().is(Objects.requireNonNull((Item) PixelmonMorpher.SYNCHRO_MACHINE.get()))) {
             return;
         }
 
@@ -49,13 +51,13 @@ public class PokemonInteractionHandler {
 
         // Check if the Pokémon is wild (not owned by a player)
         if (pokemon.getOwnerPlayer() != null) {
-            serverPlayer.sendSystemMessage(Component.literal("§cYou can only morph into wild Pokémon!"));
+            serverPlayer.sendSystemMessage(Objects.requireNonNull(Component.literal("§cYou can only morph into wild Pokémon!")));
             return;
         }
 
         // Check if the Pokémon is in battle
         if (BattleRegistry.getBattle(pixelmonEntity) != null) {
-            serverPlayer.sendSystemMessage(Component.literal("§cYou cannot morph into a Pokémon that's in battle!"));
+            serverPlayer.sendSystemMessage(Objects.requireNonNull(Component.literal("§cYou cannot morph into a Pokémon that's in battle!")));
             return;
         }
 
@@ -73,7 +75,7 @@ public class PokemonInteractionHandler {
 
         // Send success message
         String pokemonName = pokemon.getSpecies().getName();
-        serverPlayer.sendSystemMessage(Component.literal("§aYou have morphed into " + pokemonName + "!"));
+        serverPlayer.sendSystemMessage(Objects.requireNonNull(Component.literal("§aYou have morphed into " + pokemonName + "!")));
 
         PixelmonMorpher.LOGGER.info("Player {} morphed into {} (Form: {}, Shiny: {})",
             serverPlayer.getName().getString(),
@@ -95,7 +97,7 @@ public class PokemonInteractionHandler {
         }
 
         // Check if player is using the Synchro Machine and sneaking (shift+right-click)
-        if (!event.getItemStack().is(PixelmonMorpher.SYNCHRO_MACHINE.get()) || !player.isShiftKeyDown()) {
+        if (!event.getItemStack().is(Objects.requireNonNull(PixelmonMorpher.SYNCHRO_MACHINE.get())) || !player.isShiftKeyDown()) {
             return;
         }
 
@@ -118,7 +120,7 @@ public class PokemonInteractionHandler {
         NetworkHandler.sendToAll(new MorphDataSyncPacket(serverPlayer.getUUID(), emptyMorph));
 
         // Send message
-        serverPlayer.sendSystemMessage(Component.literal("§eYou have returned to your normal form!"));
+        serverPlayer.sendSystemMessage(Objects.requireNonNull(Component.literal("§eYou have returned to your normal form!")));
 
         PixelmonMorpher.LOGGER.info("Player {} unmorphed", serverPlayer.getName().getString());
 

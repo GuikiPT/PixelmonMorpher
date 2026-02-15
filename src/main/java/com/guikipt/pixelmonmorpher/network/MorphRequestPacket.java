@@ -16,6 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import java.util.Objects;
+
 import static com.guikipt.pixelmonmorpher.PixelmonMorpher.MODID;
 
 /**
@@ -32,7 +34,7 @@ public record MorphRequestPacket(
 ) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<MorphRequestPacket> TYPE =
-        new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(MODID, "morph_request"));
+        new CustomPacketPayload.Type<>(Objects.requireNonNull(ResourceLocation.fromNamespaceAndPath(MODID, "morph_request")));
 
     public static final StreamCodec<ByteBuf, MorphRequestPacket> CODEC = StreamCodec.of(
         MorphRequestPacket::encode,
@@ -40,22 +42,22 @@ public record MorphRequestPacket(
     );
 
     private static void encode(ByteBuf buf, MorphRequestPacket msg) {
-        FriendlyByteBuf friendly = new FriendlyByteBuf(buf);
-        friendly.writeUtf(msg.speciesName);
-        friendly.writeUtf(msg.formName);
+        FriendlyByteBuf friendly = new FriendlyByteBuf(Objects.requireNonNull(buf));
+        friendly.writeUtf(Objects.requireNonNull(msg.speciesName));
+        friendly.writeUtf(Objects.requireNonNull(msg.formName));
         friendly.writeBoolean(msg.isShiny);
-        friendly.writeUtf(msg.palette);
+        friendly.writeUtf(Objects.requireNonNull(msg.palette));
         friendly.writeFloat(msg.size);
-        friendly.writeEnum(msg.gender);
+        friendly.writeEnum(Objects.requireNonNull(msg.gender));
         friendly.writeInt(msg.level);
     }
 
     private static MorphRequestPacket decode(ByteBuf buf) {
-        FriendlyByteBuf friendly = new FriendlyByteBuf(buf);
-        String speciesName = friendly.readUtf();
-        String formName = friendly.readUtf();
+        FriendlyByteBuf friendly = new FriendlyByteBuf(Objects.requireNonNull(buf));
+        String speciesName = Objects.requireNonNull(friendly.readUtf());
+        String formName = Objects.requireNonNull(friendly.readUtf());
         boolean isShiny = friendly.readBoolean();
-        String palette = friendly.readUtf();
+        String palette = Objects.requireNonNull(friendly.readUtf());
         float size = friendly.readFloat();
         Gender gender = friendly.readEnum(Gender.class);
         int level = friendly.readInt();
@@ -77,7 +79,7 @@ public record MorphRequestPacket(
                 // Get species from registry
                 Species species = PixelmonSpecies.fromNameOrDex(msg.speciesName).orElse(null);
                 if (species == null) {
-                    player.sendSystemMessage(Component.literal("§cUnknown Pokémon: " + msg.speciesName));
+                    player.sendSystemMessage(Objects.requireNonNull(Component.literal("§cUnknown Pokémon: " + msg.speciesName)));
                     return;
                 }
 
@@ -160,7 +162,7 @@ public record MorphRequestPacket(
                 }
 
                 // Send success message
-                player.sendSystemMessage(Component.literal("§aYou have morphed into " + displayName + "!"));
+                player.sendSystemMessage(Objects.requireNonNull(Component.literal("§aYou have morphed into " + displayName + "!")));
             }
         });
     }

@@ -1,6 +1,5 @@
 package com.guikipt.pixelmonmorpher.client.screen;
 
-import com.guikipt.pixelmonmorpher.PixelmonMorpher;
 import com.guikipt.pixelmonmorpher.client.morph.ClientMorphCache;
 import com.guikipt.pixelmonmorpher.morph.MorphData;
 import com.guikipt.pixelmonmorpher.network.MorphRequestPacket;
@@ -131,87 +130,87 @@ public class MorphMenuScreen extends Screen {
         guiTop = (this.height - SCREEN_HEIGHT) / 2;
 
         // Search box - wider
-        searchBox = new EditBox(this.font, guiLeft + 10, guiTop + 10, 200, 20, Component.literal("Search"));
-        searchBox.setHint(Component.literal("Search Pokémon..."));
+        searchBox = new EditBox(Objects.requireNonNull(this.font), guiLeft + 10, guiTop + 10, 200, 20, Objects.requireNonNull(Component.literal("Search")));
+        searchBox.setHint(Objects.requireNonNull(Component.literal("Search Pokémon...")));
         searchBox.setResponder(this::onSearchChanged);
         this.addRenderableWidget(searchBox);
 
         // Species navigation
-        prevSpeciesButton = Button.builder(Component.literal("<"), btn -> scrollSpecies(-1))
+        prevSpeciesButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("<")), btn -> scrollSpecies(-1))
             .bounds(guiLeft + 10, guiTop + 40, 20, 20)
-            .build();
+            .build());
         this.addRenderableWidget(prevSpeciesButton);
 
-        nextSpeciesButton = Button.builder(Component.literal(">"), btn -> scrollSpecies(1))
+        nextSpeciesButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal(">")), btn -> scrollSpecies(1))
             .bounds(guiLeft + 190, guiTop + 40, 20, 20)
-            .build();
+            .build());
         this.addRenderableWidget(nextSpeciesButton);
 
         // Form selection
-        prevFormButton = Button.builder(Component.literal("<"), btn -> changeForm(-1))
+        prevFormButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("<")), btn -> changeForm(-1))
             .bounds(guiLeft + 10, guiTop + 95, 20, 20)
-            .build();
+            .build());
         this.addRenderableWidget(prevFormButton);
 
-        nextFormButton = Button.builder(Component.literal(">"), btn -> changeForm(1))
+        nextFormButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal(">")), btn -> changeForm(1))
             .bounds(guiLeft + 190, guiTop + 95, 20, 20)
-            .build();
+            .build());
         this.addRenderableWidget(nextFormButton);
 
         // Palette selection
-        prevPaletteButton = Button.builder(Component.literal("<"), btn -> changePalette(-1))
+        prevPaletteButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("<")), btn -> changePalette(-1))
             .bounds(guiLeft + 10, guiTop + 125, 20, 20)
-            .build();
+            .build());
         this.addRenderableWidget(prevPaletteButton);
 
-        nextPaletteButton = Button.builder(Component.literal(">"), btn -> changePalette(1))
+        nextPaletteButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal(">")), btn -> changePalette(1))
             .bounds(guiLeft + 190, guiTop + 125, 20, 20)
-            .build();
+            .build());
         this.addRenderableWidget(nextPaletteButton);
 
         // Shiny toggle
-        shinyToggleButton = Button.builder(Component.literal("Shiny: No"), btn -> toggleShiny())
+        shinyToggleButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("Shiny: No")), btn -> toggleShiny())
             .bounds(guiLeft + 10, guiTop + 155, 90, 20)
-            .build();
+            .build());
         this.addRenderableWidget(shinyToggleButton);
 
         // Gender toggle
-        genderToggleButton = Button.builder(Component.literal("Gender: ♂"), btn -> toggleGender())
+        genderToggleButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("Gender: ♂")), btn -> toggleGender())
             .bounds(guiLeft + 110, guiTop + 155, 100, 20)
-            .build();
+            .build());
         this.addRenderableWidget(genderToggleButton);
 
         // Level control
-        levelDownButton = Button.builder(Component.literal("-"), btn -> changeLevel(-1))
+        levelDownButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("-")), btn -> changeLevel(-1))
                 .bounds(guiLeft + 10, guiTop + 185, 20, 20)
-                .build();
+                .build());
         this.addRenderableWidget(levelDownButton);
 
-        levelUpButton = Button.builder(Component.literal("+"), btn -> changeLevel(1))
+        levelUpButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("+")), btn -> changeLevel(1))
                 .bounds(guiLeft + 190, guiTop + 185, 20, 20)
-                .build();
+                .build());
         this.addRenderableWidget(levelUpButton);
 
         // Size control
-        sizeDownButton = Button.builder(Component.literal("-"), btn -> changeSize(-0.1f))
+        sizeDownButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("-")), btn -> changeSize(-0.1f))
                 .bounds(guiLeft + 10, guiTop + 215, 20, 20)
-                .build();
+                .build());
         this.addRenderableWidget(sizeDownButton);
 
-        sizeUpButton = Button.builder(Component.literal("+"), btn -> changeSize(0.1f))
+        sizeUpButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("+")), btn -> changeSize(0.1f))
                 .bounds(guiLeft + 190, guiTop + 215, 20, 20)
-                .build();
+                .build());
         this.addRenderableWidget(sizeUpButton);
 
         // Action buttons
-        morphButton = Button.builder(Component.literal("Morph"), btn -> applyMorph())
+        morphButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("Morph")), btn -> applyMorph())
             .bounds(guiLeft + 220, guiTop + 230, 80, 20)
-            .build();
+            .build());
         this.addRenderableWidget(morphButton);
 
-        Button cancelButton = Button.builder(Component.literal("Cancel"), btn -> this.onClose())
+        Button cancelButton = Objects.requireNonNull(Button.builder(Objects.requireNonNull(Component.literal("Cancel")), btn -> this.onClose())
                 .bounds(guiLeft + 310, guiTop + 230, 80, 20)
-                .build();
+                .build());
         this.addRenderableWidget(cancelButton);
 
         updateButtonStates();
@@ -347,12 +346,12 @@ public class MorphMenuScreen extends Screen {
             // Recreate to ensure shiny texture is loaded
             updateSelectedPokemon();
         }
-        shinyToggleButton.setMessage(Component.literal("Shiny: " + (isShiny ? "Yes" : "No")));
+        shinyToggleButton.setMessage(Objects.requireNonNull(Component.literal("Shiny: " + (isShiny ? "Yes" : "No"))));
     }
 
     private void toggleGender() {
         selectedGender = (selectedGender == Gender.MALE) ? Gender.FEMALE : Gender.MALE;
-        genderToggleButton.setMessage(Component.literal("Gender: " + (selectedGender == Gender.MALE ? "♂" : "♀")));
+        genderToggleButton.setMessage(Objects.requireNonNull(Component.literal("Gender: " + (selectedGender == Gender.MALE ? "♂" : "♀"))));
 
         // Recreate the Pokémon completely to apply gender-specific forms (e.g., Pikachu tail)
         if (currentPokemon != null) {
@@ -456,24 +455,24 @@ public class MorphMenuScreen extends Screen {
         graphics.fill(previewLeft, previewTop, previewRight, previewBottom, 0xFF1A1A1A);
 
         // Draw labels - aligned vertically with buttons
-        graphics.drawString(this.font, "Pokémon:", guiLeft + 35, guiTop + 45, 0xFFFFFF);
-        graphics.drawString(this.font, getCurrentSpeciesName(), guiLeft + 35, guiTop + 57, 0xFFFF55);
+        graphics.drawString(Objects.requireNonNull(this.font), "Pokémon:", guiLeft + 35, guiTop + 45, 0xFFFFFF);
+        graphics.drawString(Objects.requireNonNull(this.font), getCurrentSpeciesName(), guiLeft + 35, guiTop + 57, 0xFFFF55);
 
-        graphics.drawString(this.font, "Form:", guiLeft + 35, guiTop + 100, 0xFFFFFF);
+        graphics.drawString(Objects.requireNonNull(this.font), "Form:", guiLeft + 35, guiTop + 100, 0xFFFFFF);
         if (!availableForms.isEmpty()) {
-            graphics.drawString(this.font, availableForms.get(selectedFormIndex), guiLeft + 35, guiTop + 112, 0xFFFF55);
+            graphics.drawString(Objects.requireNonNull(this.font), availableForms.get(selectedFormIndex), guiLeft + 35, guiTop + 112, 0xFFFF55);
         }
 
-        graphics.drawString(this.font, "Palette:", guiLeft + 35, guiTop + 130, 0xFFFFFF);
+        graphics.drawString(Objects.requireNonNull(this.font), "Palette:", guiLeft + 35, guiTop + 130, 0xFFFFFF);
         if (!availablePalettes.isEmpty()) {
-            graphics.drawString(this.font, availablePalettes.get(selectedPaletteIndex), guiLeft + 35, guiTop + 142, 0xFFFF55);
+            graphics.drawString(Objects.requireNonNull(this.font), availablePalettes.get(selectedPaletteIndex), guiLeft + 35, guiTop + 142, 0xFFFF55);
         }
 
         // Center level text vertically with button
-        graphics.drawString(this.font, "Level: " + pokemonLevel, guiLeft + 35, guiTop + 190, 0xFFFFFF);
+        graphics.drawString(Objects.requireNonNull(this.font), "Level: " + pokemonLevel, guiLeft + 35, guiTop + 190, 0xFFFFFF);
 
         // Center size text vertically with button
-        graphics.drawString(this.font, String.format("Size: %.1fx", pokemonSize), guiLeft + 35, guiTop + 220, 0xFFFFFF);
+        graphics.drawString(Objects.requireNonNull(this.font), String.format("Size: %.1fx", pokemonSize), guiLeft + 35, guiTop + 220, 0xFFFFFF);
 
         // Render Pokemon preview - centered in preview box
         if (currentPokemon != null) {
@@ -498,9 +497,11 @@ public class MorphMenuScreen extends Screen {
     private void renderPokemonPreview(GuiGraphics graphics, int x, int y) {
         if (this.minecraft == null || this.minecraft.level == null || currentPokemon == null) return;
 
+        var mc = Objects.requireNonNull(this.minecraft);
+
         try {
             // Get or create cached entity
-            PixelmonEntity entity = currentPokemon.getOrCreatePixelmon(this.minecraft.player);
+            PixelmonEntity entity = currentPokemon.getOrCreatePixelmon(mc.player);
 
             if (entity != null) {
                 // Check if we need to refresh cache (species, gender, shiny, or form changed)
@@ -551,18 +552,20 @@ public class MorphMenuScreen extends Screen {
 
                 renderEntity(graphics, x, y, scale, cachedPreviewEntity != null ? cachedPreviewEntity : entity);
             } else {
-                graphics.drawString(this.font, "Preview", x - 20, y - 10, 0xFFFFFF);
-                graphics.drawString(this.font, "Unavailable", x - 30, y + 5, 0xFFFFFF);
+                graphics.drawString(Objects.requireNonNull(this.font), "Preview", x - 20, y - 10, 0xFFFFFF);
+                graphics.drawString(Objects.requireNonNull(this.font), "Unavailable", x - 30, y + 5, 0xFFFFFF);
             }
         } catch (Exception e) {
             // Draw fallback text if entity can't be rendered
-            graphics.drawString(this.font, "Preview", x - 20, y - 10, 0xFFFFFF);
-            graphics.drawString(this.font, "Unavailable", x - 30, y + 5, 0xFFFFFF);
+            graphics.drawString(Objects.requireNonNull(this.font), "Preview", x - 20, y - 10, 0xFFFFFF);
+            graphics.drawString(Objects.requireNonNull(this.font), "Unavailable", x - 30, y + 5, 0xFFFFFF);
         }
     }
 
     private void renderEntity(GuiGraphics graphics, int x, int y, float scale, LivingEntity entity) {
         if (this.minecraft == null) return;
+
+        var mc = Objects.requireNonNull(this.minecraft);
 
         try {
             graphics.pose().pushPose();
@@ -582,14 +585,14 @@ public class MorphMenuScreen extends Screen {
             Quaternionf rotationY = new Quaternionf().rotateY((180 + previewRotationY) * ((float) Math.PI / 180F)); // 180 to face forward
             graphics.pose().mulPose(rotationY);
 
-            EntityRenderDispatcher dispatcher = this.minecraft.getEntityRenderDispatcher();
+            EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
             rotationY.conjugate();
             dispatcher.overrideCameraOrientation(rotationY);
             dispatcher.setRenderShadow(false);
 
             // Render the entity
-            var bufferSource = this.minecraft.renderBuffers().bufferSource();
-            dispatcher.render(entity, 0, 0, 0, 0.0F, 1.0F, graphics.pose(), bufferSource, 15728880);
+            var bufferSource = Objects.requireNonNull(mc.renderBuffers().bufferSource());
+            dispatcher.render(entity, 0, 0, 0, 0.0F, 1.0F, Objects.requireNonNull(graphics.pose()), bufferSource, 15728880);
 
             bufferSource.endBatch();
             dispatcher.setRenderShadow(true);
@@ -598,7 +601,7 @@ public class MorphMenuScreen extends Screen {
         } catch (Exception e) {
             graphics.pose().popPose();
             // Failed to render - draw error text
-            graphics.drawString(this.font, "Render Error", x - 30, y, 0xFF0000);
+            graphics.drawString(Objects.requireNonNull(this.font), "Render Error", x - 30, y, 0xFF0000);
         }
     }
 

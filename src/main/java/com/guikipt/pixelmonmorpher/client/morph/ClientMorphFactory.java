@@ -1,6 +1,7 @@
 package com.guikipt.pixelmonmorpher.client.morph;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -122,7 +123,7 @@ public class ClientMorphFactory {
             entity.yBodyRot = player.yBodyRot;
 
             // Copy pose for swim/crouch animations
-            entity.setPose(player.getPose());
+            entity.setPose(Objects.requireNonNull(player.getPose()));
 
             // Detect idle state based on actual movement delta
             double dx = entity.getX() - entity.xOld;
@@ -144,7 +145,7 @@ public class ClientMorphFactory {
                 entity.stopInPlace();
             } else {
                 // Moving: copy movement state
-                entity.setDeltaMovement(player.getDeltaMovement());
+                entity.setDeltaMovement(Objects.requireNonNull(player.getDeltaMovement()));
                 entity.setSprinting(player.isSprinting());
                 entity.setSwimming(player.isSwimming());
             }

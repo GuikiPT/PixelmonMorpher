@@ -50,6 +50,8 @@ public class PlayerSizeHandler {
         };
 
         // Set the new dimensions (eye height is calculated automatically as 90% of height)
-        event.setNewSize(newDimensions);
+        if (newDimensions != null) {
+            event.setNewSize(newDimensions);
+        }
     }
 }

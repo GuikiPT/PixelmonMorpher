@@ -1,6 +1,7 @@
 package com.guikipt.pixelmonmorpher.client.morph;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,7 +39,7 @@ public class ClientMorphCache {
         // CRITICAL: Force dimension refresh on the client
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != null) {
-            Player player = mc.level.getPlayerByUUID(playerId);
+            Player player = mc.level.getPlayerByUUID(Objects.requireNonNull(playerId));
             if (player != null) {
                 player.refreshDimensions();
             }

@@ -1,5 +1,6 @@
 package com.guikipt.pixelmonmorpher.network;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import com.guikipt.pixelmonmorpher.morph.MorphData;
@@ -14,7 +15,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  */
 public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<MorphDataSyncPacket> TYPE =
-        new CustomPacketPayload.Type<>(NetworkHandler.MORPH_SYNC_ID);
+        new CustomPacketPayload.Type<>(Objects.requireNonNull(NetworkHandler.MORPH_SYNC_ID));
 
     @Override
     public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
@@ -22,14 +23,14 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
     }
 
     public static MorphDataSyncPacket decode(FriendlyByteBuf buf) {
-        UUID playerId = buf.readUUID();
+        UUID playerId = Objects.requireNonNull(buf.readUUID());
         boolean isMorphed = buf.readBoolean();
         MorphData data = new MorphData();
         if (isMorphed) {
-            String species = buf.readUtf();
-            String formName = buf.readUtf();
+            String species = Objects.requireNonNull(buf.readUtf());
+            String formName = Objects.requireNonNull(buf.readUtf());
             boolean shiny = buf.readBoolean();
-            String palette = buf.readUtf();
+            String palette = Objects.requireNonNull(buf.readUtf());
             float size = buf.readFloat();
             float width = buf.readFloat();
             float height = buf.readFloat();
@@ -43,7 +44,7 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
     public static void handle(MorphDataSyncPacket msg, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             // Update the cache first
-            ClientMorphCache.setMorph(msg.playerId, msg.morphData);
+            ClientMorphCache.setMorph(Objects.requireNonNull(msg.playerId), msg.morphData);
 
             // Force an additional dimension refresh to ensure it takes effect
             net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
@@ -58,13 +59,13 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
     }
 
     public static void encode(MorphDataSyncPacket msg, FriendlyByteBuf buf) {
-        buf.writeUUID(msg.playerId);
+        buf.writeUUID(Objects.requireNonNull(msg.playerId));
         buf.writeBoolean(msg.morphData != null && msg.morphData.isMorphed());
         if (msg.morphData != null && msg.morphData.isMorphed()) {
-            buf.writeUtf(msg.morphData.getSpeciesName());
-            buf.writeUtf(msg.morphData.getFormName() != null ? msg.morphData.getFormName() : "");
+            buf.writeUtf(Objects.requireNonNull(msg.morphData.getSpeciesName()));
+            buf.writeUtf(Objects.requireNonNull(msg.morphData.getFormName() != null ? msg.morphData.getFormName() : ""));
             buf.writeBoolean(msg.morphData.isShiny());
-            buf.writeUtf(msg.morphData.getPalette());
+            buf.writeUtf(Objects.requireNonNull(msg.morphData.getPalette()));
             buf.writeFloat(msg.morphData.getSize());
             buf.writeFloat(msg.morphData.getWidth());
             buf.writeFloat(msg.morphData.getHeight());

@@ -14,6 +14,8 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Objects;
+
 /**
  * Command to unmorph a player back to normal.
  * Usage: /pokeunmorph [player]
@@ -25,9 +27,9 @@ public class PokeUnmorphCommand {
         dispatcher.register(
             Commands.literal("pokeunmorph")
                 .requires(source -> source.hasPermission(2)) // Require OP level 2
-                .executes(context -> executeUnmorph(context, null)) // Unmorph self
-                .then(Commands.argument("player", EntityArgument.player())
-                    .executes(context -> executeUnmorph(context, EntityArgument.getPlayer(context, "player")))
+                .executes(context -> executeUnmorph(Objects.requireNonNull(context), null)) // Unmorph self
+                .then(Commands.argument("player", Objects.requireNonNull(EntityArgument.player()))
+                    .executes(context -> executeUnmorph(Objects.requireNonNull(context), EntityArgument.getPlayer(context, "player")))
                 )
         );
     }
@@ -38,7 +40,7 @@ public class PokeUnmorphCommand {
             if (context.getSource().getEntity() instanceof ServerPlayer player) {
                 targetPlayer = player;
             } else {
-                context.getSource().sendFailure(Component.literal("§cYou must specify a player to unmorph!"));
+                context.getSource().sendFailure(Objects.requireNonNull(Component.literal("§cYou must specify a player to unmorph!")));
                 return 0;
             }
         }
@@ -46,7 +48,7 @@ public class PokeUnmorphCommand {
         // Check if player is currently morphed
         MorphData currentMorph = PlayerMorphAttachment.getMorphData(targetPlayer);
         if (!currentMorph.isMorphed()) {
-            context.getSource().sendFailure(Component.literal("§c" + targetPlayer.getName().getString() + " is not currently morphed!"));
+            context.getSource().sendFailure(Objects.requireNonNull(Component.literal("§c" + targetPlayer.getName().getString() + " is not currently morphed!")));
             return 0;
         }
 
@@ -65,11 +67,11 @@ public class PokeUnmorphCommand {
 
         // Send success messages
         context.getSource().sendSuccess(
-            () -> Component.literal("§e" + playerName + " has been unmorphed!"),
+            () -> Objects.requireNonNull(Component.literal("§e" + playerName + " has been unmorphed!")),
             true
         );
 
-        targetPlayer.sendSystemMessage(Component.literal("§eYou have returned to your normal form!"));
+        targetPlayer.sendSystemMessage(Objects.requireNonNull(Component.literal("§eYou have returned to your normal form!")));
 
         return 1;
     }
