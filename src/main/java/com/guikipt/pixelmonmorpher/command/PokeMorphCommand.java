@@ -99,7 +99,7 @@ public class PokeMorphCommand {
                     return 0;
                 }
             } catch (Exception e) {
-                context.getSource().sendFailure(Component.literal("§cInvalid form: " + formName));
+                context.getSource().sendFailure(Objects.requireNonNull(Component.literal("§cInvalid form: " + formName)));
                 return 0;
             }
         }

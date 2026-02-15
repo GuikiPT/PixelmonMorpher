@@ -6,7 +6,6 @@ import com.guikipt.pixelmonmorpher.network.MorphDataSyncPacket;
 import com.guikipt.pixelmonmorpher.network.NetworkHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
