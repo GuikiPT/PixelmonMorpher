@@ -22,7 +22,10 @@ import org.joml.Quaternionf;
 
 import javax.annotation.Nonnull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * GUI screen for morphing into a Pokémon with customization options
