@@ -577,13 +577,13 @@ public class MorphMenuScreen extends Screen {
             graphics.pose().scale(scale, scale, -scale); // Negative Z to flip correctly
 
             // Rotation based on mouse drag (stored in class fields)
-            Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI); // Flip to face forward
-            Quaternionf rotationX = new Quaternionf().rotateX(previewRotationX * ((float) Math.PI / 180F));
+            Quaternionf rotation = Objects.requireNonNull(new Quaternionf().rotateZ((float) Math.PI)); // Flip to face forward
+            Quaternionf rotationX = Objects.requireNonNull(new Quaternionf().rotateX(previewRotationX * ((float) Math.PI / 180F)));
             rotation.mul(rotationX);
-            graphics.pose().mulPose(rotation);
+            Objects.requireNonNull(graphics.pose()).mulPose(rotation);
 
-            Quaternionf rotationY = new Quaternionf().rotateY((180 + previewRotationY) * ((float) Math.PI / 180F)); // 180 to face forward
-            graphics.pose().mulPose(rotationY);
+            Quaternionf rotationY = Objects.requireNonNull(new Quaternionf().rotateY((180 + previewRotationY) * ((float) Math.PI / 180F))); // 180 to face forward
+            Objects.requireNonNull(graphics.pose()).mulPose(rotationY);
 
             EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
             rotationY.conjugate();
