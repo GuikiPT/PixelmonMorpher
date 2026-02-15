@@ -18,8 +18,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
+
+import javax.annotation.Nonnull;
 
 import java.util.*;
 
@@ -433,13 +434,13 @@ public class MorphMenuScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderBackground(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Draw simple transparent overlay instead of blur
         graphics.fill(0, 0, this.width, this.height, 0x80000000);
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Background
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
 
@@ -732,8 +733,10 @@ public class MorphMenuScreen extends Screen {
                 // Update search box with current selection
                 if (!filteredSpecies.isEmpty()) {
                     String selectedName = filteredSpecies.get(selectedSpeciesIndex).getName();
-                    searchBox.setValue(selectedName);
-                    searchBox.moveCursorToEnd(false);
+                    if (selectedName != null) {
+                        searchBox.setValue(selectedName);
+                        searchBox.moveCursorToEnd(false);
+                    }
                 }
                 return true;
             }

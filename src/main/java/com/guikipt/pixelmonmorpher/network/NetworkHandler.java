@@ -23,7 +23,7 @@ public class NetworkHandler {
 
     public static final StreamCodec<FriendlyByteBuf, MorphDataSyncPacket> STREAM_CODEC =
         StreamCodec.of(
-            (buf, packet) -> packet.encode(packet, buf),
+            (buf, packet) -> MorphDataSyncPacket.encode(packet, buf),
             MorphDataSyncPacket::decode
         );
 

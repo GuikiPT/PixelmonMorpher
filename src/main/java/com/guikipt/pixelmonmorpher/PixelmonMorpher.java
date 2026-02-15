@@ -6,7 +6,6 @@ import com.guikipt.pixelmonmorpher.command.PokeMorphCommand;
 import com.guikipt.pixelmonmorpher.command.PokeUnmorphCommand;
 import com.guikipt.pixelmonmorpher.item.SynchroMachineItem;
 import com.guikipt.pixelmonmorpher.morph.PlayerMorphAttachment;
-import com.guikipt.pixelmonmorpher.network.NetworkHandler;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -58,8 +57,7 @@ public class PixelmonMorpher {
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", Objects.requireNonNull(EXAMPLE_BLOCK));
 
     // Creates a new food item with the id "pixelmonmorpher:example_id", nutrition 1 and saturation 2
-    public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", new Item.Properties().food(Objects.requireNonNull(new FoodProperties.Builder()
-            .alwaysEdible().nutrition(1).saturationModifier(2f).build())));
+    public static final DeferredItem<Item> EXAMPLE_ITEM = createExampleItem();
 
     // Synchro Machine - The main item for morphing into Pokémon
     public static final DeferredItem<Item> SYNCHRO_MACHINE = ITEMS.register("synchro_machine",
@@ -75,6 +73,20 @@ public class PixelmonMorpher {
             .displayItems((parameters, output) -> {
                 output.accept(Objects.requireNonNull(SYNCHRO_MACHINE.get())); // Add the Synchro Machine to the tab
             }).build());
+
+    private static DeferredItem<Item> createExampleItem() {
+        FoodProperties.Builder foodBuilder = new FoodProperties.Builder()
+                .alwaysEdible().nutrition(1).saturationModifier(2f);
+        FoodProperties food = foodBuilder.build();
+        if (food == null) {
+            throw new IllegalStateException("Failed to create food properties");
+        }
+        Item.Properties props = new Item.Properties().food(food);
+        if (props == null) {
+            throw new IllegalStateException("Failed to create item properties");
+        }
+        return ITEMS.registerSimpleItem("example_item", props);
+    }
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -110,7 +122,10 @@ public class PixelmonMorpher {
         // No-op for networking; payload registration is handled via mod event bus listener
 
         if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
-            LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
+            Block dirtBlock = Blocks.DIRT;
+            if (dirtBlock != null) {
+                LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(dirtBlock));
+            }
         }
 
         LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
@@ -121,7 +136,10 @@ public class PixelmonMorpher {
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(EXAMPLE_BLOCK_ITEM);
+            BlockItem item = EXAMPLE_BLOCK_ITEM.get();
+            if (item != null) {
+                event.accept(item);
+            }
         }
     }
 

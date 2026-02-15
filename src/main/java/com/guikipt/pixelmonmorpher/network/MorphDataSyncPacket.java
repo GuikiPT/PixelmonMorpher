@@ -23,14 +23,14 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
     }
 
     public static MorphDataSyncPacket decode(FriendlyByteBuf buf) {
-        UUID playerId = Objects.requireNonNull(buf.readUUID());
+        UUID playerId = buf.readUUID();
         boolean isMorphed = buf.readBoolean();
         MorphData data = new MorphData();
         if (isMorphed) {
-            String species = Objects.requireNonNull(buf.readUtf());
-            String formName = Objects.requireNonNull(buf.readUtf());
+            String species = buf.readUtf();
+            String formName = buf.readUtf();
             boolean shiny = buf.readBoolean();
-            String palette = Objects.requireNonNull(buf.readUtf());
+            String palette = buf.readUtf();
             float size = buf.readFloat();
             float width = buf.readFloat();
             float height = buf.readFloat();
@@ -44,12 +44,15 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
     public static void handle(MorphDataSyncPacket msg, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             // Update the cache first
-            ClientMorphCache.setMorph(Objects.requireNonNull(msg.playerId), msg.morphData);
+            UUID playerId = msg.playerId;
+            if (playerId == null) return;
+            
+            ClientMorphCache.setMorph(playerId, msg.morphData);
 
             // Force an additional dimension refresh to ensure it takes effect
             net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
             if (mc.level != null) {
-                net.minecraft.world.entity.player.Player player = mc.level.getPlayerByUUID(msg.playerId);
+                net.minecraft.world.entity.player.Player player = mc.level.getPlayerByUUID(playerId);
                 if (player != null) {
                     // Refresh dimensions on the next tick to ensure cache is fully updated
                     mc.execute(() -> player.refreshDimensions());
@@ -59,13 +62,22 @@ public record MorphDataSyncPacket(UUID playerId, MorphData morphData) implements
     }
 
     public static void encode(MorphDataSyncPacket msg, FriendlyByteBuf buf) {
-        buf.writeUUID(Objects.requireNonNull(msg.playerId));
+        UUID playerId = msg.playerId;
+        if (playerId != null) {
+            buf.writeUUID(playerId);
+        } else {
+            buf.writeUUID(new UUID(0, 0));
+        }
         buf.writeBoolean(msg.morphData != null && msg.morphData.isMorphed());
         if (msg.morphData != null && msg.morphData.isMorphed()) {
-            buf.writeUtf(Objects.requireNonNull(msg.morphData.getSpeciesName()));
-            buf.writeUtf(Objects.requireNonNull(msg.morphData.getFormName() != null ? msg.morphData.getFormName() : ""));
+            String speciesName = msg.morphData.getSpeciesName();
+            String formName = msg.morphData.getFormName();
+            String palette = msg.morphData.getPalette();
+            
+            buf.writeUtf(speciesName != null ? speciesName : "");
+            buf.writeUtf(formName != null ? formName : "");
             buf.writeBoolean(msg.morphData.isShiny());
-            buf.writeUtf(Objects.requireNonNull(msg.morphData.getPalette()));
+            buf.writeUtf(palette != null ? palette : "");
             buf.writeFloat(msg.morphData.getSize());
             buf.writeFloat(msg.morphData.getWidth());
             buf.writeFloat(msg.morphData.getHeight());

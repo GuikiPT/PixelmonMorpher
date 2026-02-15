@@ -56,15 +56,15 @@ public class PokeMorphCommand {
                     .requires(source -> source.hasPermission(2))
                     .then(Commands.argument("pokemon", Objects.requireNonNull(StringArgumentType.string()))
                         .suggests(POKEMON_SUGGESTIONS)
-                        .executes(context -> executeMorph(Objects.requireNonNull(context), false, null))
+                        .executes(context -> executeMorph(context, false, null))
                         .then(Commands.literal("shiny")
-                            .executes(context -> executeMorph(Objects.requireNonNull(context), true, null))
+                            .executes(context -> executeMorph(context, true, null))
                             .then(Commands.argument("form", Objects.requireNonNull(StringArgumentType.string()))
-                                .executes(context -> executeMorph(Objects.requireNonNull(context), true, StringArgumentType.getString(context, "form")))
+                                .executes(context -> executeMorph(context, true, StringArgumentType.getString(context, "form")))
                             )
                         )
                         .then(Commands.argument("form", Objects.requireNonNull(StringArgumentType.string()))
-                            .executes(context -> executeMorph(Objects.requireNonNull(context), false, StringArgumentType.getString(context, "form")))
+                            .executes(context -> executeMorph(context, false, StringArgumentType.getString(context, "form")))
                         )
                     )
                 )
@@ -72,6 +72,7 @@ public class PokeMorphCommand {
     }
 
     private static int executeMorph(CommandContext<CommandSourceStack> context, boolean shiny, String formName) throws CommandSyntaxException {
+        if (context == null) return 0;
         ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
         String pokemonName = StringArgumentType.getString(context, "pokemon");
 

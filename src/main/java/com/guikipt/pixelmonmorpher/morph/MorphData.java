@@ -4,6 +4,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -80,7 +81,7 @@ public class MorphData implements INBTSerializable<CompoundTag> {
      * Save morph data to NBT
      */
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+    public CompoundTag serializeNBT(@Nonnull HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("isMorphed", isMorphed);
         if (isMorphed) {
@@ -99,7 +100,7 @@ public class MorphData implements INBTSerializable<CompoundTag> {
      * Load morph data from NBT
      */
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+    public void deserializeNBT(@Nonnull HolderLookup.Provider provider, @Nonnull CompoundTag tag) {
         this.isMorphed = tag.getBoolean("isMorphed");
         if (this.isMorphed) {
             this.speciesName = Objects.requireNonNull(tag.getString("speciesName"));
