@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.guikipt.pixelmonmorpher.morph.MorphData;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 public class ClientMorphFactory {
     private static final Map<UUID, PixelmonEntity> ENTITY_CACHE = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> LAST_IDLE_STATE = new ConcurrentHashMap<>();
+    private static final AtomicBoolean WALK_ANIMATION_REFLECTION_FAILED = new AtomicBoolean(false);
 
 
     /**
@@ -237,12 +239,24 @@ public class ClientMorphFactory {
                 entity.setSprinting(false);
                 entity.setSwimming(false);
                 try {
-                    var walkAnimationField = net.minecraft.world.entity.LivingEntity.class.getField("walkAnimation");
+                    // Use reflection to access private walkAnimation field in LivingEntity.
+                    // This is necessary because Minecraft doesn't provide a public API to control
+                    // animation state, and we need to ensure the animation transitions to idle properly.
+                    var walkAnimationField = net.minecraft.world.entity.LivingEntity.class.getDeclaredField("walkAnimation");
+                    walkAnimationField.setAccessible(true);  // Required to access private field
                     Object walkAnimation = walkAnimationField.get(entity);
                     var setSpeedMethod = walkAnimation.getClass().getMethod("setSpeed", float.class);
                     setSpeedMethod.invoke(walkAnimation, 0.0F);
-                } catch (Exception ignored) {
-                    // Best effort: field/method names can vary across mappings
+                } catch (Exception e) {
+                    // Catch all exceptions since this is a best-effort operation that may fail
+                    // due to obfuscation, mapping differences, or Minecraft version changes.
+                    // Log the error only once to avoid spam.
+                    if (WALK_ANIMATION_REFLECTION_FAILED.compareAndSet(false, true)) {
+                        com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.warn(
+                            "Failed to reset walkAnimation via reflection (this may cause animation issues): {}",
+                            e.getMessage()
+                        );
+                    }
                 }
             }
 
