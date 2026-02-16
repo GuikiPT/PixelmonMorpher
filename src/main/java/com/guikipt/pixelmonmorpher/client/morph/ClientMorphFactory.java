@@ -239,13 +239,18 @@ public class ClientMorphFactory {
                 entity.setSprinting(false);
                 entity.setSwimming(false);
                 try {
+                    // Use reflection to access private walkAnimation field in LivingEntity.
+                    // This is necessary because Minecraft doesn't provide a public API to control
+                    // animation state, and we need to ensure the animation transitions to idle properly.
                     var walkAnimationField = net.minecraft.world.entity.LivingEntity.class.getDeclaredField("walkAnimation");
-                    walkAnimationField.setAccessible(true);
+                    walkAnimationField.setAccessible(true);  // Required to access private field
                     Object walkAnimation = walkAnimationField.get(entity);
                     var setSpeedMethod = walkAnimation.getClass().getMethod("setSpeed", float.class);
                     setSpeedMethod.invoke(walkAnimation, 0.0F);
                 } catch (Exception e) {
-                    // Log the error only once to avoid spam
+                    // Catch all exceptions since this is a best-effort operation that may fail
+                    // due to obfuscation, mapping differences, or Minecraft version changes.
+                    // Log the error only once to avoid spam.
                     if (WALK_ANIMATION_REFLECTION_FAILED.compareAndSet(false, true)) {
                         com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.warn(
                             "Failed to reset walkAnimation via reflection (this may cause animation issues): {}",
