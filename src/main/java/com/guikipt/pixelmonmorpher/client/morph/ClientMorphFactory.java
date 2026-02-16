@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 public class ClientMorphFactory {
     private static final Map<UUID, PixelmonEntity> ENTITY_CACHE = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> LAST_IDLE_STATE = new ConcurrentHashMap<>();
+    private static boolean walkAnimationReflectionFailed = false;
 
 
     /**
@@ -237,12 +238,20 @@ public class ClientMorphFactory {
                 entity.setSprinting(false);
                 entity.setSwimming(false);
                 try {
-                    var walkAnimationField = net.minecraft.world.entity.LivingEntity.class.getField("walkAnimation");
+                    var walkAnimationField = net.minecraft.world.entity.LivingEntity.class.getDeclaredField("walkAnimation");
+                    walkAnimationField.setAccessible(true);
                     Object walkAnimation = walkAnimationField.get(entity);
                     var setSpeedMethod = walkAnimation.getClass().getMethod("setSpeed", float.class);
                     setSpeedMethod.invoke(walkAnimation, 0.0F);
-                } catch (Exception ignored) {
-                    // Best effort: field/method names can vary across mappings
+                } catch (Exception e) {
+                    // Log the error only once to avoid spam
+                    if (!walkAnimationReflectionFailed) {
+                        walkAnimationReflectionFailed = true;
+                        com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.warn(
+                            "Failed to reset walkAnimation via reflection (this may cause animation issues): {}",
+                            e.getMessage()
+                        );
+                    }
                 }
             }
 
