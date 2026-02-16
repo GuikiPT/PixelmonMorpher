@@ -87,6 +87,10 @@ public class ClientMorphFactory {
                 entity.yBodyRot = player.yBodyRot;
                 entity.yBodyRotO = player.yBodyRot;
 
+                // Disable rotation smoothing to prevent jitter
+                entity.setYBodyRot(player.getYRot());
+                entity.yBodyRotO = player.yRotO;
+
                 // Initialize entity for rendering
                 entity.tickCount = player.tickCount;
             }
@@ -103,38 +107,53 @@ public class ClientMorphFactory {
      */
     public static void updateEntityTick(Player player, PixelmonEntity entity) {
         if (entity != null) {
-            // Copy previous tick position from player -> entity (gives real per-tick deltas)
-            entity.xOld = player.xOld;
-            entity.yOld = player.yOld;
-            entity.zOld = player.zOld;
+            // Detect idle state FIRST based on player's movement delta
+            double playerDx = player.getX() - player.xOld;
+            double playerDz = player.getZ() - player.zOld;
+            double playerMovement = Math.sqrt(playerDx * playerDx + playerDz * playerDz);
+            boolean isIdle = playerMovement < 0.001 && player.onGround() && !player.isSprinting() && !player.isSwimming();
 
             // Set current position
             entity.setPos(player.getX(), player.getY(), player.getZ());
 
-            // Copy rotations (old + current)
+            // Handle position history BASED on movement state
+            if (isIdle) {
+                // Idle: force old position = current position (zero movement delta)
+                entity.xOld = entity.getX();
+                entity.yOld = entity.getY();
+                entity.zOld = entity.getZ();
+            } else {
+                // Moving: copy player's position history for accurate movement delta
+                entity.xOld = player.xOld;
+                entity.yOld = player.yOld;
+                entity.zOld = player.zOld;
+            }
+
+            // Copy rotations with smooth body rotation
             entity.yRotO = player.yRotO;
             entity.xRotO = player.xRotO;
-            entity.yHeadRotO = player.yHeadRotO;
-            entity.yBodyRotO = player.yBodyRotO;
-
+            
+            // Smoothly interpolate body rotation towards player rotation
+            float targetBodyRot = player.getYRot();
+            float currentBodyRot = entity.yBodyRot;
+            float bodyRotDiff = net.minecraft.util.Mth.wrapDegrees(targetBodyRot - currentBodyRot);
+            float smoothedBodyRot = currentBodyRot + bodyRotDiff * 0.3f; // 30% interpolation for smoothness
+            
+            entity.yBodyRotO = entity.yBodyRot; // Keep previous body rotation for interpolation
             entity.setYRot(player.getYRot());
-            entity.setXRot(player.getXRot());
-            entity.setYHeadRot(player.getYHeadRot());
-            entity.yBodyRot = player.yBodyRot;
+            entity.setXRot(0); // Don't tilt up/down
+            
+            // Keep head rotation matching body - don't follow player's look direction
+            entity.yHeadRotO = entity.yBodyRotO;
+            entity.setYHeadRot(smoothedBodyRot);
+            entity.setYBodyRot(smoothedBodyRot);
 
             // Copy pose for swim/crouch animations
             entity.setPose(Objects.requireNonNull(player.getPose()));
 
-            // Detect idle state based on actual movement delta
-            double dx = entity.getX() - entity.xOld;
-            double dz = entity.getZ() - entity.zOld;
-            double horizontalMovement = Math.sqrt(dx * dx + dz * dz);
-            boolean isIdle = horizontalMovement < 0.01 && player.onGround() && !player.isSprinting() && !player.isSwimming();
-
-            // Handle movement state
+            // Handle movement state - Set state BEFORE tick() so animation system sees correct state
             if (isIdle) {
-                // True idle: force no delta and clear movement
-                entity.setOldPosAndRot();
+                // Idle: clear all movement state so entity plays IDLE animation
                 entity.setDeltaMovement(0, 0, 0);
                 entity.setXxa(0);
                 entity.setYya(0);
@@ -142,9 +161,12 @@ public class ClientMorphFactory {
                 entity.setSpeed(0);
                 entity.setSprinting(false);
                 entity.setSwimming(false);
-                entity.stopInPlace();
+                
+                // Reset walk animation distance (tells animation system we're not walking)
+                entity.walkDist = 0;
+                entity.walkDistO = 0;
             } else {
-                // Moving: copy movement state
+                // Moving: copy movement state so entity plays WALK/SWIM/FLY animation
                 entity.setDeltaMovement(Objects.requireNonNull(player.getDeltaMovement()));
                 entity.setSprinting(player.isSprinting());
                 entity.setSwimming(player.isSwimming());
@@ -169,7 +191,7 @@ public class ClientMorphFactory {
             // Update tick count
             entity.tickCount = player.tickCount;
 
-            // Tick the entity to advance animations
+            // Always tick to keep animations running (idle, walk, swim, fly animations)
             try {
                 entity.tick();
             } catch (Exception e) {
@@ -178,6 +200,16 @@ public class ClientMorphFactory {
 
             // Re-lock position after tick to prevent drift
             entity.setPos(player.getX(), player.getY(), player.getZ());
+            
+            // Re-enforce idle state after tick (in case tick modified animation state)
+            if (isIdle) {
+                entity.xOld = entity.getX();
+                entity.yOld = entity.getY();
+                entity.zOld = entity.getZ();
+                entity.walkDist = 0;
+                entity.walkDistO = 0;
+                entity.setDeltaMovement(0, 0, 0);
+            }
         }
     }
 

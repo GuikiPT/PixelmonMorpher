@@ -60,17 +60,11 @@ public class MorphRenderHandler {
             float sizeMultiplier = morphData.getSize();
             poseStack.scale(sizeMultiplier, sizeMultiplier, sizeMultiplier);
 
-            // Use smooth rotation interpolation for rendering
-            float yaw = net.minecraft.util.Mth.rotLerp(partialTick, player.yRotO, player.getYRot());
-            float pitch = net.minecraft.util.Mth.lerp(partialTick, player.xRotO, player.getXRot());
-            float headYaw = net.minecraft.util.Mth.rotLerp(partialTick, player.yHeadRotO, player.getYHeadRot());
+            // Use entity's own rotation values (already synced in updateEntityTick)
+            // The renderer will interpolate automatically between yRotO and yRot
+            float yaw = pixelmonEntity.getYRot();
 
-            // Set interpolated rotation for smooth rendering
-            pixelmonEntity.setYRot(yaw);
-            pixelmonEntity.setXRot(pitch);
-            pixelmonEntity.setYHeadRot(headYaw);
-
-            // Render the Pixelmon at the player's position
+            // Render the Pixelmon at the player's position (entity already has correct rotations)
             renderManager.render(pixelmonEntity, 0, 0, 0, yaw, partialTick, poseStack, bufferSource, packedLight);
 
             poseStack.popPose();
