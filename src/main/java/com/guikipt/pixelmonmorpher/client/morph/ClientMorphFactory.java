@@ -12,6 +12,7 @@ import com.pixelmonmod.pixelmon.api.pokemon.species.Species;
 import com.pixelmonmod.pixelmon.api.registries.PixelmonSpecies;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public class ClientMorphFactory {
     private static final Map<UUID, PixelmonEntity> ENTITY_CACHE = new ConcurrentHashMap<>();
+    private static final Map<UUID, Boolean> LAST_IDLE_STATE = new ConcurrentHashMap<>();
 
 
     /**
@@ -107,11 +109,22 @@ public class ClientMorphFactory {
      */
     public static void updateEntityTick(Player player, PixelmonEntity entity) {
         if (entity != null) {
-            // Detect idle state FIRST based on player's movement delta
+            // Detect motion state with tolerance for network/interpolation jitter
             double playerDx = player.getX() - player.xOld;
             double playerDz = player.getZ() - player.zOld;
-            double playerMovement = Math.sqrt(playerDx * playerDx + playerDz * playerDz);
-            boolean isIdle = playerMovement < 0.001 && player.onGround() && !player.isSprinting() && !player.isSwimming();
+            double horizontalDeltaSqr = playerDx * playerDx + playerDz * playerDz;
+            double velocityDeltaSqr = player.getDeltaMovement().x * player.getDeltaMovement().x
+                + player.getDeltaMovement().z * player.getDeltaMovement().z;
+            boolean hasMovementInput = Math.abs(player.xxa) > 0.01F || Math.abs(player.zza) > 0.01F;
+            boolean hasRelevantHorizontalMotion = hasMovementInput || horizontalDeltaSqr > 0.0016D || velocityDeltaSqr > 0.0016D;
+            boolean isFlying = (player.getAbilities().flying || player.isFallFlying()) && !player.onGround();
+
+            boolean isLocalPlayer = Minecraft.getInstance().player == player;
+            boolean groundedNoInput = player.onGround() && !hasMovementInput && !player.isSprinting() && !player.isSwimming();
+            boolean isIdle = (isLocalPlayer && groundedNoInput)
+                || (!hasRelevantHorizontalMotion && !player.isSprinting() && !player.isSwimming() && !isFlying);
+
+            boolean wasIdle = LAST_IDLE_STATE.getOrDefault(player.getUUID(), false);
 
             // Set current position
             entity.setPos(player.getX(), player.getY(), player.getZ());
@@ -161,6 +174,11 @@ public class ClientMorphFactory {
                 entity.setSpeed(0);
                 entity.setSprinting(false);
                 entity.setSwimming(false);
+
+                // Transition to idle: force-stop any lingering movement controller state
+                if (!wasIdle) {
+                    entity.stopInPlace();
+                }
                 
                 // Reset walk animation distance (tells animation system we're not walking)
                 entity.walkDist = 0;
@@ -168,6 +186,10 @@ public class ClientMorphFactory {
             } else {
                 // Moving: copy movement state so entity plays WALK/SWIM/FLY animation
                 entity.setDeltaMovement(Objects.requireNonNull(player.getDeltaMovement()));
+                entity.setXxa(player.xxa);
+                entity.setYya(player.yya);
+                entity.setZza(player.zza);
+                entity.setSpeed(player.getSpeed());
                 entity.setSprinting(player.isSprinting());
                 entity.setSwimming(player.isSwimming());
             }
@@ -182,7 +204,6 @@ public class ClientMorphFactory {
             entity.verticalCollisionBelow = player.verticalCollisionBelow;
 
             // PIXELMON-SPECIFIC: Handle flying state
-            boolean isFlying = player.getAbilities().flying || player.isFallFlying();
             entity.setFlying(isFlying);
             if (!isFlying) {
                 entity.setHoverTicks(0);
@@ -209,7 +230,23 @@ public class ClientMorphFactory {
                 entity.walkDist = 0;
                 entity.walkDistO = 0;
                 entity.setDeltaMovement(0, 0, 0);
+                entity.setXxa(0);
+                entity.setYya(0);
+                entity.setZza(0);
+                entity.setSpeed(0);
+                entity.setSprinting(false);
+                entity.setSwimming(false);
+                try {
+                    var walkAnimationField = net.minecraft.world.entity.LivingEntity.class.getField("walkAnimation");
+                    Object walkAnimation = walkAnimationField.get(entity);
+                    var setSpeedMethod = walkAnimation.getClass().getMethod("setSpeed", float.class);
+                    setSpeedMethod.invoke(walkAnimation, 0.0F);
+                } catch (Exception ignored) {
+                    // Best effort: field/method names can vary across mappings
+                }
             }
+
+            LAST_IDLE_STATE.put(player.getUUID(), isIdle);
         }
     }
 
@@ -218,6 +255,7 @@ public class ClientMorphFactory {
      */
     public static void clearCache(UUID playerId) {
         PixelmonEntity entity = ENTITY_CACHE.remove(playerId);
+        LAST_IDLE_STATE.remove(playerId);
         if (entity != null && !entity.isRemoved()) {
             entity.discard();
         }
@@ -233,5 +271,6 @@ public class ClientMorphFactory {
             }
         });
         ENTITY_CACHE.clear();
+        LAST_IDLE_STATE.clear();
     }
 }

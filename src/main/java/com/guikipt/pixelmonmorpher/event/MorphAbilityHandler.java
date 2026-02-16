@@ -14,6 +14,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Handles special abilities for morphed players:
  * - Flight ability for flying Pokémon (even in survival)
@@ -22,6 +25,9 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  */
 @EventBusSubscriber(modid = PixelmonMorpher.MODID)
 public class MorphAbilityHandler {
+
+    private static final Map<String, Boolean> FLY_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Boolean> WATER_CACHE = new ConcurrentHashMap<>();
 
     @SuppressWarnings("deprecation")
     @SubscribeEvent
@@ -134,6 +140,12 @@ public class MorphAbilityHandler {
      * Uses Pixelmon's built-in flying detection
      */
     private static boolean canPokemonFly(Pokemon pokemon) {
+        String cacheKey = getAbilityCacheKey(pokemon);
+        Boolean cached = FLY_CACHE.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
             // Check if the Pokémon entity can fly/levitate using Pixelmon's API
             var entity = pokemon.getOrCreatePixelmon(null);
@@ -141,13 +153,18 @@ public class MorphAbilityHandler {
                 // Check if entity has flying or hovering capability
                 boolean canFly = entity.canFly() || entity.isHovering();
 
-                String speciesName = pokemon.getSpecies().getName();
-                PixelmonMorpher.LOGGER.debug("Checking flight for {}: canFly={}, isHovering={}",
-                    speciesName, entity.canFly(), entity.isHovering());
+                // Ensure temporary entity is cleaned up if it was instantiated
+                try {
+                    entity.discard();
+                } catch (Exception ignored) {
+                }
+
+                FLY_CACHE.put(cacheKey, canFly);
 
                 return canFly;
             }
 
+            FLY_CACHE.put(cacheKey, false);
             return false;
         } catch (Exception e) {
             PixelmonMorpher.LOGGER.error("Error checking if Pokemon can fly", e);
@@ -159,47 +176,59 @@ public class MorphAbilityHandler {
      * Check if a Pokémon is a water type using Pixelmon's API
      */
     private static boolean isWaterPokemon(Pokemon pokemon) {
+        String cacheKey = getAbilityCacheKey(pokemon);
+        Boolean cached = WATER_CACHE.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            // Create entity to check types
-            var entity = pokemon.getOrCreatePixelmon(null);
-            if (entity != null) {
-                // Get type from entity's form
-                var form = entity.getForm();
-                if (form != null) {
-                    var types = form.getTypes();
-                    if (!types.isEmpty()) {
-                        // Use the Holder's key to get type name instead of toString() to avoid StackOverflowError
-                        var type1Holder = types.get(0);
-                        var type2Holder = types.size() > 1 ? types.get(1) : null;
+            var form = pokemon.getForm();
+            if (form != null) {
+                var types = form.getTypes();
+                if (!types.isEmpty()) {
+                    // Use the Holder's key to get type name instead of toString() to avoid StackOverflowError
+                    var type1Holder = types.get(0);
+                    var type2Holder = types.size() > 1 ? types.get(1) : null;
 
-                        // Safely get type names from holder keys
-                        String type1Name = null;
-                        if (type1Holder.getKey() != null) {
-                            type1Name = type1Holder.getKey().location().getPath().toLowerCase();
-                        }
-
-                        String type2Name = null;
-                        if (type2Holder != null && type2Holder.getKey() != null) {
-                            type2Name = type2Holder.getKey().location().getPath().toLowerCase();
-                        }
-
-                        boolean isWater = type1Name != null && type1Name.contains("water");
-                        if (!isWater && type2Name != null) {
-                            isWater = type2Name.contains("water");
-                        }
-
-                        // PixelmonMorpher.LOGGER.debug("Checking water type for {}: type1={}, type2={}, isWater={}",
-                        //     pokemon.getSpecies().getName(), type1Name,
-                        //     type2Name != null ? type2Name : "none", isWater);
-
-                        return isWater;
+                    // Safely get type names from holder keys
+                    String type1Name = null;
+                    if (type1Holder.getKey() != null) {
+                        type1Name = type1Holder.getKey().location().getPath().toLowerCase();
                     }
+
+                    String type2Name = null;
+                    if (type2Holder != null && type2Holder.getKey() != null) {
+                        type2Name = type2Holder.getKey().location().getPath().toLowerCase();
+                    }
+
+                    boolean isWater = type1Name != null && type1Name.contains("water");
+                    if (!isWater && type2Name != null) {
+                        isWater = type2Name.contains("water");
+                    }
+
+                    WATER_CACHE.put(cacheKey, isWater);
+                    return isWater;
                 }
             }
+
+            WATER_CACHE.put(cacheKey, false);
             return false;
         } catch (Exception e) {
             PixelmonMorpher.LOGGER.error("Error checking if Pokemon is water type", e);
             return false;
         }
+    }
+
+    private static String getAbilityCacheKey(Pokemon pokemon) {
+        String species = pokemon.getSpecies() != null ? pokemon.getSpecies().getName() : "unknown";
+        String formName = "base";
+        try {
+            if (pokemon.getForm() != null && pokemon.getForm().getName() != null) {
+                formName = pokemon.getForm().getName();
+            }
+        } catch (Exception ignored) {
+        }
+        return species.toLowerCase() + ":" + formName.toLowerCase();
     }
 }
