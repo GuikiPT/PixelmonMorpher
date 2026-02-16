@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.guikipt.pixelmonmorpher.morph.MorphData;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
@@ -21,7 +22,7 @@ import net.minecraft.world.entity.player.Player;
 public class ClientMorphFactory {
     private static final Map<UUID, PixelmonEntity> ENTITY_CACHE = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> LAST_IDLE_STATE = new ConcurrentHashMap<>();
-    private static boolean walkAnimationReflectionFailed = false;
+    private static final AtomicBoolean walkAnimationReflectionFailed = new AtomicBoolean(false);
 
 
     /**
@@ -245,8 +246,7 @@ public class ClientMorphFactory {
                     setSpeedMethod.invoke(walkAnimation, 0.0F);
                 } catch (Exception e) {
                     // Log the error only once to avoid spam
-                    if (!walkAnimationReflectionFailed) {
-                        walkAnimationReflectionFailed = true;
+                    if (walkAnimationReflectionFailed.compareAndSet(false, true)) {
                         com.guikipt.pixelmonmorpher.PixelmonMorpher.LOGGER.warn(
                             "Failed to reset walkAnimation via reflection (this may cause animation issues): {}",
                             e.getMessage()
